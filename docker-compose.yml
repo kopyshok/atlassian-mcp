@@ -1,0 +1,23 @@
+# Пример. Сервис должен быть в одной сети Docker с Open WebUI.
+# Порт наружу не публикуется: обращаться к серверу может только Open WebUI.
+services:
+  atlassian-mcp:
+    build: .
+    image: atlassian-mcp:1.0.0
+    restart: unless-stopped
+    environment:
+      OWUI_URL: http://open-webui:8080          # адрес Open WebUI внутри сети Docker
+      OWUI_TOOL_ID: atlassian_tokens            # ID инструмента-формы в Open WebUI
+      JIRA_URL: https://jira.example.local      # имя сервера, не IP
+      CONFLUENCE_URL: https://confluence.example.local
+      # Jira — всё, кроме Service Desk, форм ProForma и разработки; Confluence — страницы,
+      # комментарии, вложения.
+      TOOLSETS: default,jira_projects,jira_agile,jira_links,jira_worklog,jira_attachments,jira_users,jira_watchers,jira_metrics,jira_project_analysis,confluence_attachments
+      # Удаление скрыто: прав на него у пользователей всё равно нет. Итого 75 инструментов.
+      EXCLUDED_TOOLS: jira_delete_issue,confluence_delete_page,confluence_delete_attachment
+      # READ_ONLY_MODE: "true"                  # только чтение, на время пробы
+    networks: [openwebui]
+
+networks:
+  openwebui:
+    external: true                              # сеть, в которой работает Open WebUI
