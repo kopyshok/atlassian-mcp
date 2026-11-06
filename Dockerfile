@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 # COPY corp-ca.crt /usr/local/share/ca-certificates/corp-ca.crt
 # RUN update-ca-certificates
 
-COPY server.py /app/
+COPY server.py chat_attachments.py /app/
 WORKDIR /app
 ENV TRANSPORT=streamable-http HOST=0.0.0.0 PORT=8000 HOME=/tmp
 EXPOSE 8000

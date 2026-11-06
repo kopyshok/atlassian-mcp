@@ -112,7 +112,9 @@ class OpenWebUITokens:
                 (f"x-atlassian-{name}-url".encode(), url.encode()),
                 (f"x-atlassian-{name}-personal-token".encode(), (token or MISSING).encode("latin-1")),
             ]
-        scope = {**scope, "headers": headers}
+        # Session stays local to this request, never in forwarded headers/tool arguments.
+        scope = {**scope, "headers": headers,
+                 "state": {**scope.get("state", {}), "owui_authorization": auth}}
 
         if missing and scope["method"] == "POST":
             body, messages = await _read_body(receive)
@@ -176,6 +178,9 @@ def _exclude_tools() -> None:
 
 def main() -> None:
     _check_config()
+    from chat_attachments import register_tools
+
+    register_tools()
     _exclude_tools()
     from mcp_atlassian import main as mcp_main
     from mcp_atlassian.servers.main import AtlassianMCP
